@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090b16">
+  <meta name="description" content="Un saluto speciale per Giorgio: luce, colore e un po' di meraviglia.">
+  <title>Ciao Giorgio ✦</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #090b16;
+      --ink: #f7f7fc;
+      --muted: #aaaabd;
+      --a: 162, 125, 255;
+      --b: 255, 129, 195;
+      --c: 112, 227, 233;
+      --pointer-x: 50%;
+      --pointer-y: 42%;
+      font-family: "Inter", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { min-height: 100%; background: var(--background); }
+    body { margin: 0; min-height: 100svh; color: var(--ink); overflow-x: hidden; }
+    button { font: inherit; -webkit-tap-highlight-color: transparent; }
+    button:focus-visible { outline: 2px solid rgb(var(--c)); outline-offset: 6px; }
+    button { touch-action: manipulation; }
+    ::selection { background: rgba(var(--a), .5); color: white; }
+
+    .scene, #stars, .grain, .spotlight { position: fixed; inset: 0; pointer-events: none; }
+    .scene { overflow: hidden; z-index: -1; background: var(--background); }
+    .scene::after {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 28%, rgba(9, 11, 22, .55) 100%);
+    }
+    .aurora { position: absolute; width: 72vw; height: 62vw; max-width: 1100px; max-height: 930px; border-radius: 50%; filter: blur(95px); opacity: .29; }
+    .aurora.one { left: -32%; top: -35%; background: radial-gradient(ellipse, rgb(var(--a)), transparent 64%); animation: drift-one 18s ease-in-out infinite alternate; }
+    .aurora.two { right: -32%; bottom: -45%; background: radial-gradient(ellipse, rgb(var(--b)), transparent 65%); animation: drift-two 21s ease-in-out infinite alternate; }
+    .aurora.three { right: -14%; top: -26%; width: 53vw; height: 55vw; background: radial-gradient(ellipse, rgb(var(--c)), transparent 68%); opacity: .14; animation: drift-one 24s ease-in-out infinite alternate-reverse; }
+    .spotlight { background: radial-gradient(440px circle at var(--pointer-x) var(--pointer-y), rgba(var(--a), .065), transparent 78%); }
+    .grain { opacity: .055; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.84' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' opacity='.7' filter='url(%23noise)'/%3E%3C/svg%3E"); }
+
+    .shell { position: relative; z-index: 1; min-height: 100svh; max-width: 1600px; margin: auto; padding: 34px 48px 24px; display: flex; flex-direction: column; }
+    header, footer { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+    .wordmark { font-size: 24px; font-weight: 750; letter-spacing: -1.7px; }
+    .wordmark span { color: rgb(var(--b)); }
+    .motion-toggle {
+      display: inline-flex; align-items: center; gap: 10px; color: #c5c5d5; background: rgba(255,255,255,.035);
+      border: 1px solid rgba(255,255,255,.11); border-radius: 40px; padding: 11px 15px; cursor: pointer;
+      font-size: 12px; transition: background .2s, border-color .2s;
+    }
+    .motion-toggle:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.23); }
+    .motion-toggle svg, .replay svg { width: 16px; height: 16px; flex-shrink: 0; }
+    main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; position: relative; padding: 64px 0 74px; }
+    .eyebrow { font-size: 10px; font-weight: 650; letter-spacing: 3.3px; text-transform: uppercase; color: #cdccdc; margin: 0 0 28px; display: flex; align-items: center; gap: 11px; }
+    .eyebrow::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: rgb(var(--c)); box-shadow: 0 0 16px rgba(var(--c), .8); }
+    .greeting { position: relative; isolation: isolate; }
+    h1 { position: relative; z-index: 2; margin: 0; font-weight: 750; letter-spacing: -.085em; line-height: .98; }
+    .line { display: block; }
+    .hello { font-size: clamp(64px, 8.8vw, 126px); padding-right: .045em; color: #f3f0fb; }
+    .name { font-size: clamp(80px, 13.6vw, 196px); margin-top: .06em; padding: 0 .09em .12em .025em; }
+    .letter { display: inline-block; opacity: 0; transform: translateY(.36em) rotateX(-65deg); filter: blur(12px); }
+    .name .letter { color: #c7a2ff; background: linear-gradient(140deg, rgb(var(--c)) 0%, rgb(var(--a)) 32%, #e4b0e7 57%, rgb(var(--b)) 82%, #ffe1ce); background-size: 230% 230%; -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+    .intro-ready .letter { animation: letter-in 850ms cubic-bezier(.16, 1, .3, 1) var(--delay) both; }
+    .intro-ready .name .letter { animation: letter-in 850ms cubic-bezier(.16, 1, .3, 1) var(--delay) both, shimmer 9s ease-in-out 2.3s infinite alternate; }
+    .halo { position: absolute; z-index: -1; width: 116%; height: 135%; left: -8%; top: -20%; background: radial-gradient(ellipse, rgba(var(--a), .10), transparent 66%); filter: blur(25px); animation: breathe 7s ease-in-out infinite alternate; }
+    .orbit { position: absolute; z-index: -1; left: 50%; top: 48%; width: 760px; max-width: 90vw; aspect-ratio: 1; border: 1px solid rgba(var(--a), .14); border-radius: 50%; transform: translate(-50%, -50%) rotateX(64deg) rotate(-24deg); animation: orbit-breathe 14s ease-in-out infinite alternate; }
+    .orbit.second { width: 850px; max-width: 102vw; border-color: rgba(var(--c), .07); transform: translate(-50%, -50%) rotateX(65deg) rotate(24deg); animation-delay: -6s; }
+    .orbit::after { content: ""; position: absolute; width: 6px; height: 6px; left: 14.6%; top: 14.6%; background: rgb(var(--c)); border-radius: 50%; box-shadow: 0 0 17px 4px rgba(var(--c), .55); }
+    .orbit.second::after { width: 4px; height: 4px; background: rgb(var(--b)); left: auto; top: auto; right: 14.6%; bottom: 14.6%; box-shadow: 0 0 12px 3px rgba(var(--b), .5); }
+    .spark { position: absolute; z-index: 3; color: rgb(var(--c)); width: 33px; height: 33px; right: -8%; top: 17%; animation: sparkle 5s ease-in-out infinite; }
+    .spark.small { width: 17px; height: 17px; top: auto; bottom: 9%; right: auto; left: -5%; color: rgb(var(--b)); animation-delay: -2s; }
+    .subtitle { font-size: clamp(16px, 1.6vw, 20px); font-weight: 350; color: #aaa6be; line-height: 1.65; margin: 20px 0 32px; opacity: 0; }
+    .controls { display: flex; align-items: center; gap: 20px; opacity: 0; }
+    .intro-ready .subtitle { animation: soft-in 900ms ease 1.4s both; }
+    .intro-ready .controls { animation: soft-in 900ms ease 1.65s both; }
+    .replay { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 15px 23px; background: rgba(255,255,255,.065); border: 1px solid rgba(255,255,255,.19); border-radius: 40px; color: #f2effb; font-size: 13px; font-weight: 500; cursor: pointer; backdrop-filter: blur(14px); transition: transform .25s, box-shadow .25s, background .25s; }
+    .replay:hover { background: rgba(var(--a), .16); transform: translateY(-2px); box-shadow: 0 8px 34px rgba(var(--a), .13); }
+    .replay:active { transform: scale(.97); }
+    .replay:hover svg { transform: rotate(-45deg); }
+    .replay svg { transition: transform .4s ease; }
+    .palette { display: flex; gap: 4px; align-items: center; padding-left: 16px; border-left: 1px solid rgba(255,255,255,.13); }
+    .palette button { width: 40px; height: 44px; display: grid; place-items: center; background: transparent; border: 0; border-radius: 10px; cursor: pointer; }
+    .swatch { width: 17px; height: 17px; border-radius: 50%; background: var(--swatch); box-shadow: 0 0 0 4px transparent; transition: box-shadow .25s, transform .25s; }
+    .palette button:hover .swatch { transform: scale(1.15); }
+    .palette button[aria-pressed="true"] .swatch { box-shadow: 0 0 0 3px var(--background), 0 0 0 4px rgba(255,255,255,.65); }
+    footer { color: #858498; font-size: 11px; line-height: 1.5; }
+    .footer-note { margin: 0; }
+    .touch-hint { display: flex; align-items: center; gap: 8px; font-size: 10px; }
+    .touch-hint::before { content: "✧"; font-size: 18px; color: rgb(var(--b)); }
+    .is-paused *, .is-paused *::before, .is-paused *::after { animation-play-state: paused !important; }
+    .is-paused .letter { animation: none !important; opacity: 1; transform: none; filter: none; }
+    .is-paused .subtitle, .is-paused .controls { animation: none !important; opacity: 1; transform: none; }
+    .is-paused .touch-hint { visibility: hidden; }
+    .ripple { position: fixed; width: 12px; height: 12px; margin: -6px; z-index: 0; border: 1px solid rgba(var(--c), .6); border-radius: 50%; pointer-events: none; animation: ripple 1s ease-out both; }
+    noscript p { color: var(--muted); text-align: center; padding: 20px; font-size: 13px; }
+
+    @keyframes letter-in { to { opacity: 1; transform: translateY(0) rotateX(0); filter: blur(0); } }
+    @keyframes shimmer { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+    @keyframes soft-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes drift-one { to { transform: translate(14%, 20%) rotate(18deg) scale(1.18); } }
+    @keyframes drift-two { to { transform: translate(-15%, -20%) rotate(-15deg) scale(1.22); } }
+    @keyframes breathe { to { opacity: .6; transform: scale(1.18); } }
+    @keyframes orbit-breathe { to { opacity: .5; transform: translate(-50%, -50%) rotateX(64deg) rotate(6deg) scale(1.1); } }
+    @keyframes sparkle { 0%, 100% { opacity: .45; transform: rotate(0deg) scale(.85); } 50% { opacity: 1; transform: rotate(90deg) scale(1.13); } }
+    @keyframes ripple { to { transform: scale(22); opacity: 0; } }
+
+    @media (min-width: 1500px) { .shell { padding-top: 42px; } }
+    @media (max-width: 600px) {
+      .shell { padding: 22px 22px 20px; }
+      .wordmark { font-size: 23px; }
+      main { padding: 68px 0 80px; }
+      .motion-toggle { padding: 10px 12px; font-size: 11px; gap: 8px; }
+      .eyebrow { margin-bottom: 26px; font-size: 9px; letter-spacing: 2.6px; }
+      .hello { font-size: clamp(60px, 18vw, 108px); }
+      .name { font-size: clamp(70px, 21.8vw, 135px); }
+      .spark { width: 22px; height: 22px; right: -2%; top: 12%; }
+      .spark.small { left: 0; width: 13px; height: 13px; bottom: -2%; }
+      .subtitle { margin-top: 27px; margin-bottom: 30px; font-size: 16px; }
+      .controls { gap: 12px; }
+      .replay { padding: 14px 17px; font-size: 12px; }
+      .palette { gap: 0; padding-left: 10px; }
+      .palette button { width: 32px; }
+      .swatch { width: 15px; height: 15px; }
+      footer { align-items: flex-start; font-size: 10px; }
+      .footer-note { max-width: 150px; }
+      .touch-hint { max-width: 120px; text-align: right; }
+      .aurora { width: 120vw; height: 160vw; filter: blur(70px); }
+      .aurora.one { left: -50%; top: -15%; }
+      .aurora.two { right: -75%; bottom: -30%; }
+      .aurora.three { width: 100vw; height: 100vw; top: 10%; right: -75%; }
+    }
+    @media (max-height: 600px) and (min-width: 601px) {
+      .shell { padding: 20px 34px; }
+      main { padding: 24px 0 36px; }
+      .eyebrow { margin-bottom: 18px; }
+      .hello { font-size: 64px; }
+      .name { font-size: 100px; }
+      .subtitle { margin: 12px 0 16px; font-size: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      body:not(.motion-enabled) *, body:not(.motion-enabled) *::before, body:not(.motion-enabled) *::after { animation: none !important; transition: none !important; }
+      body:not(.motion-enabled) .letter, body:not(.motion-enabled) .subtitle, body:not(.motion-enabled) .controls { opacity: 1; transform: none; filter: none; }
+    }
+  </style>
+  <noscript><style>.letter, .subtitle, .controls {opacity: 1; transform: none; filter: none} .controls, .motion-toggle, .touch-hint {display: none}</style></noscript>
+</head>
+<body>
+  <div class="scene" aria-hidden="true">
+    <div class="aurora one"></div><div class="aurora two"></div><div class="aurora three"></div>
+  </div>
+  <canvas id="stars" aria-hidden="true"></canvas>
+  <div class="spotlight" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <div class="shell">
+    <header>
+      <div class="wordmark" aria-hidden="true">ciao<span>.</span></div>
+      <button class="motion-toggle" id="motion" type="button" aria-label="Metti in pausa le animazioni" aria-pressed="false">
+        <svg id="motion-icon" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M7 5v10M13 5v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+        <span id="motion-label">Pausa</span>
+      </button>
+    </header>
+
+    <main>
+      <p class="eyebrow">Un saluto speciale</p>
+      <div class="greeting">
+        <div class="halo" aria-hidden="true"></div>
+        <div class="orbit" aria-hidden="true"></div><div class="orbit second" aria-hidden="true"></div>
+        <svg class="spark" viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><path d="M20 0c2.8 13.4 6.6 17.2 20 20-13.4 2.8-17.2 6.6-20 20C17.2 26.6 13.4 22.8 0 20 13.4 17.2 17.2 13.4 20 0Z"/></svg>
+        <svg class="spark small" viewBox="0 0 40 40" fill="currentColor" aria-hidden="true"><path d="M20 0c2.8 13.4 6.6 17.2 20 20-13.4 2.8-17.2 6.6-20 20C17.2 26.6 13.4 22.8 0 20 13.4 17.2 17.2 13.4 20 0Z"/></svg>
+        <h1 aria-label="Ciao Giorgio">
+          <span class="line hello" aria-hidden="true"><span class="letter" style="--delay:180ms">C</span><span class="letter" style="--delay:280ms">i</span><span class="letter" style="--delay:380ms">a</span><span class="letter" style="--delay:480ms">o</span></span>
+          <span class="line name" aria-hidden="true"><span class="letter" style="--delay:700ms">G</span><span class="letter" style="--delay:790ms">i</span><span class="letter" style="--delay:880ms">o</span><span class="letter" style="--delay:970ms">r</span><span class="letter" style="--delay:1060ms">g</span><span class="letter" style="--delay:1150ms">i</span><span class="letter" style="--delay:1240ms">o</span></span>
+        </h1>
+      </div>
+      <p class="subtitle">Che bello averti qui.</p>
+      <div class="controls">
+        <button id="replay" class="replay" type="button">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4.5 7A6 6 0 1 1 4 12M4.5 3v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Rivedi il saluto
+        </button>
+        <div class="palette" role="group" aria-label="Scegli i colori">
+          <button type="button" data-theme="aurora" aria-label="Atmosfera Aurora: viola e rosa" title="Aurora" aria-pressed="true"><span class="swatch" style="--swatch:linear-gradient(135deg,#9980ff,#ff8bc5)"></span></button>
+          <button type="button" data-theme="oceano" aria-label="Atmosfera Oceano: azzurro e verde" title="Oceano" aria-pressed="false"><span class="swatch" style="--swatch:linear-gradient(135deg,#55b4ff,#6affce)"></span></button>
+          <button type="button" data-theme="alba" aria-label="Atmosfera Alba: arancio e rosa" title="Alba" aria-pressed="false"><span class="swatch" style="--swatch:linear-gradient(135deg,#ffbb77,#ff77a2)"></span></button>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <p class="footer-note">Un po’ di luce. Un po’ di meraviglia.</p>
+      <span class="touch-hint">Tocca lo sfondo e lascia una scintilla.</span>
+    </footer>
+  </div>
+  <noscript><p>Per usare i pulsanti e le particelle interattive, attiva JavaScript nel browser.</p></noscript>
+
+  <script>
+    (() => {
+      'use strict';
+      const root = document.documentElement;
+      const body = document.body;
+      const canvas = document.getElementById('stars');
+      const context = canvas.getContext('2d');
+      const motionButton = document.getElementById('motion');
+      const motionLabel = document.getElementById('motion-label');
+      const motionIcon = document.getElementById('motion-icon');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const themes = {
+        aurora: { a: '162, 125, 255', b: '255, 129, 195', c: '112, 227, 233' },
+        oceano: { a: '99, 173, 255', b: '114, 243, 198', c: '185, 238, 255' },
+        alba: { a: '255, 149, 105', b: '255, 121, 176', c: '255, 220, 160' }
+      };
+      let theme = themes.aurora;
+      let motion = !reducedMotion.matches;
+      let width = 0;
+      let height = 0;
+      let points = [];
+      let sparks = [];
+      let animationFrame = null;
+      let lastTime = 0;
+      let restartTimer = null;
+      const pointer = { x: -1000, y: -1000 };
+
+      function resize() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(width * pixelRatio);
+        canvas.height = Math.round(height * pixelRatio);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        if (!context) return;
+        context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+        points = Array.from({ length: width < 600 ? 38 : 76 }, () => ({
+          x: Math.random() * width, y: Math.random() * height,
+          vx: (Math.random() - .5) * .15, vy: -.045 - Math.random() * .17,
+          size: .4 + Math.random() * 1.3, alpha: .15 + Math.random() * .38,
+          phase: Math.random() * Math.PI * 2
+        }));
+        draw(performance.now(), 0);
+      }
+
+      function draw(time, delta) {
+        if (!context) return;
+        context.clearRect(0, 0, width, height);
+        const speed = delta / 16.67;
+        points.forEach(point => {
+          if (motion && delta > 0) {
+            point.x += point.vx * speed;
+            point.y += point.vy * speed;
+            if (point.y < -10) { point.y = height + 10; point.x = Math.random() * width; }
+            if (point.x < -10) point.x = width + 10;
+            if (point.x > width + 10) point.x = -10;
+          }
+          const alpha = point.alpha * (.75 + .25 * Math.sin(time * .0008 + point.phase));
+          context.fillStyle = 'rgba(220, 224, 255, ' + alpha + ')';
+          context.beginPath(); context.arc(point.x, point.y, point.size, 0, Math.PI * 2); context.fill();
+          const distance = Math.hypot(point.x - pointer.x, point.y - pointer.y);
+          if (motion && distance < 145) {
+            context.strokeStyle = 'rgba(' + theme.c + ', ' + (.2 * (1 - distance / 145)) + ')';
+            context.lineWidth = .5;
+            context.beginPath(); context.moveTo(point.x, point.y); context.lineTo(pointer.x, pointer.y); context.stroke();
+          }
+        });
+        sparks = sparks.filter(spark => spark.life > 0);
+        sparks.forEach(spark => {
+          spark.x += spark.vx * speed; spark.y += spark.vy * speed;
+          spark.vx *= Math.pow(.975, speed); spark.vy *= Math.pow(.975, speed);
+          spark.life -= delta / 1200;
+          context.fillStyle = 'rgba(' + spark.color + ', ' + Math.max(0, spark.life) + ')';
+          context.beginPath(); context.arc(spark.x, spark.y, spark.size * Math.max(.1, spark.life), 0, Math.PI * 2); context.fill();
+        });
+      }
+
+      function frame(time) {
+        const delta = Math.min(time - (lastTime || time), 40);
+        lastTime = time;
+        draw(time, delta);
+        animationFrame = requestAnimationFrame(frame);
+      }
+
+      function syncAnimation() {
+        if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+        animationFrame = null;
+        lastTime = 0;
+        body.classList.toggle('is-paused', !motion);
+        body.classList.toggle('motion-enabled', motion);
+        motionLabel.textContent = motion ? 'Pausa' : 'Riprendi';
+        motionButton.setAttribute('aria-pressed', String(!motion));
+        motionButton.setAttribute('aria-label', motion ? 'Metti in pausa le animazioni' : 'Attiva le animazioni');
+        motionIcon.innerHTML = motion
+          ? '<path d="M7 5v10M13 5v10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>'
+          : '<path d="m7 4 9 6-9 6V4Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>';
+        if (motion && !document.hidden && context) animationFrame = requestAnimationFrame(frame);
+        else draw(performance.now(), 0);
+      }
+
+      function burst(x, y, count = 28) {
+        if (!motion || !context) return;
+        const colors = [theme.a, theme.b, theme.c];
+        for (let i = 0; i < count; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = .5 + Math.random() * 3;
+          sparks.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, life: 1, size: .8 + Math.random() * 1.8, color: colors[i % colors.length] });
+        }
+        sparks = sparks.slice(-120);
+      }
+
+      function replay() {
+        if (!motion) return;
+        clearTimeout(restartTimer);
+        body.classList.remove('intro-ready');
+        void body.offsetWidth;
+        body.classList.add('intro-ready');
+        restartTimer = setTimeout(() => burst(width / 2, height * .48, 42), 1200);
+      }
+
+      document.getElementById('replay').addEventListener('click', replay);
+      motionButton.addEventListener('click', () => { motion = !motion; syncAnimation(); });
+      document.querySelectorAll('[data-theme]').forEach(button => {
+        button.addEventListener('click', () => {
+          theme = themes[button.dataset.theme];
+          Object.entries(theme).forEach(([key, value]) => root.style.setProperty('--' + key, value));
+          document.querySelectorAll('[data-theme]').forEach(item => item.setAttribute('aria-pressed', String(item === button)));
+          burst(width / 2, height * .5, 36);
+          if (!motion) draw(performance.now(), 0);
+        });
+      });
+      window.addEventListener('pointermove', event => {
+        if (!motion) return;
+        pointer.x = event.clientX; pointer.y = event.clientY;
+        root.style.setProperty('--pointer-x', event.clientX + 'px');
+        root.style.setProperty('--pointer-y', event.clientY + 'px');
+      }, { passive: true });
+      document.addEventListener('pointerleave', () => { pointer.x = pointer.y = -1000; });
+      document.addEventListener('pointerdown', event => {
+        if (!motion || event.target.closest('button, a')) return;
+        burst(event.clientX, event.clientY);
+        const ripple = document.createElement('div');
+        ripple.className = 'ripple'; ripple.setAttribute('aria-hidden', 'true');
+        ripple.style.left = event.clientX + 'px'; ripple.style.top = event.clientY + 'px';
+        body.appendChild(ripple); ripple.addEventListener('animationend', () => ripple.remove(), { once: true });
+        setTimeout(() => ripple.remove(), 1100);
+      });
+      document.addEventListener('visibilitychange', syncAnimation);
+      reducedMotion.addEventListener('change', event => { motion = !event.matches; syncAnimation(); });
+      window.addEventListener('resize', resize, { passive: true });
+      resize();
+      syncAnimation();
+      requestAnimationFrame(() => body.classList.add('intro-ready'));
+    })();
+  </script>
+</body>
+</html>
